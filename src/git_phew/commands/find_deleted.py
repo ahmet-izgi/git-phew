@@ -106,7 +106,7 @@ def search(
 
     # -G preselects commits whose changed lines contain a Python definition.
     # This avoids inspecting every blob in the full repository history.
-    expression = r"^[[:space:]]*(async[[:space:]]+)?def[[:space:]]+" + name + r"[[:space:]]*\("
+    expression = r"^[[:space:]]*(async[[:space:]]+)?def[[:space:]]+(" + name + r"[[:space:]]*(\(|\\)|\\)"
     history = _git(
         repo, "log", "--topo-order", "--no-merges", "--format=%H",
         "--no-ext-diff", "--no-textconv", "--extended-regexp",

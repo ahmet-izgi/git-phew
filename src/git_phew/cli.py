@@ -6,6 +6,7 @@ import argparse
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 import sys
+import unicodedata
 from typing import Sequence
 
 from .commands.find_deleted import GitHistoryError, search
@@ -16,6 +17,43 @@ def _installed_version() -> str:
         return version("git-phew")
     except PackageNotFoundError:
         return "development"
+
+
+def _is_control(char: str) -> bool:
+    if char in ("\n", "\r", "\t"):
+        return True
+    category = unicodedata.category(char)
+    return category.startswith("C") or category in ("Zl", "Zp")
+
+
+def _sanitize(
+    text: str, *, allow_newlines: bool = False, allow_tabs: bool = False
+) -> str:
+    result: list[str] = []
+    if allow_newlines:
+        text = text.replace("\r\n", "\n")
+    for char in text:
+        if allow_newlines and char == "\n":
+            result.append(char)
+        elif allow_tabs and char == "\t":
+            result.append(char)
+        elif char == "\n":
+            result.append("\\n")
+        elif char == "\r":
+            result.append("\\r")
+        elif char == "\t":
+            result.append("\\t")
+        elif not _is_control(char):
+            result.append(char)
+        else:
+            code = ord(char)
+            if code <= 0xFF:
+                result.append(f"\\x{code:02x}")
+            elif code <= 0xFFFF:
+                result.append(f"\\u{code:04x}")
+            else:
+                result.append(f"\\U{code:08x}")
+    return "".join(result)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -52,7 +90,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.repo, args.name, path=args.path, commit_prefix=args.commit,
             )
         except GitHistoryError as exc:
-            print(f"git phew: {exc}", file=sys.stderr)
+            print(f"git phew: {_sanitize(str(exc), allow_newlines=True)}", file=sys.stderr)
             return 2
         if not matches:
             print(
@@ -63,21 +101,22 @@ def main(argv: Sequence[str] | None = None) -> int:
         if len(matches) > 1:
             print(f"Found {len(matches)} removals; refusing to choose one:")
             for match in matches[:20]:
-                print(f"  {match.removed_in[:12]}  {match.path}:{match.line}")
+                print(f"  {match.removed_in[:12]}  {_sanitize(match.path)}:{match.line}")
             if len(matches) > 20:
                 print(f"  ... and {len(matches) - 20} more")
             print("Narrow the search with --path and/or --commit.")
             return 3
 
         match = matches[0]
-        print(f"Removed from: {match.path}:{match.line}")
+        print(f"Removed from: {_sanitize(match.path)}:{match.line}")
         print(f"Removal commit: {match.removed_in}")
         print(f"Last present in: {match.last_present_in}")
         print(
             "Note: This proves removal from that file, not that the "
             "function is absent from all later code."
         )
-        print("\n" + match.source, end="" if match.source.endswith("\n") else "\n")
+        safe_source = _sanitize(match.source, allow_newlines=True, allow_tabs=True)
+        print("\n" + safe_source, end="" if safe_source.endswith("\n") else "\n")
         return 0
     parser.error("Unsupported command")
     return 2
