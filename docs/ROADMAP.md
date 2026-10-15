@@ -1,16 +1,18 @@
 # Roadmap (proposals, not commitments)
 
-Git Phew will grow only when a narrowly scoped utility demonstrates a real benefit. The repository is currently a CLI foundation, not a collection of working utilities.
+Git Phew will grow only when a narrowly scoped utility demonstrates a real benefit. No stable utility release has been published.
 
-## First: `find-deleted`
+## First: \`find-deleted\` — experimental
 
-Start with **Python functions only**. Search reachable local Git history and show a candidate's source, file path, and commit reference without modifying the repository. Handle duplicate names, renamed files, and missing results conservatively. Verify behavior against disposable repositories with controlled commits before making product claims.
+Initial support is intentionally **Python functions only**. The command scans local commits reachable from HEAD and attempts to prove a function was removed from a specific file, showing its historical source and commit references. It never changes the working tree or refs.
 
-## Later candidate: `stash-audit`
+Correctness tests must cover removals, signature edits that retain a function, renames, duplicate names, syntax errors, and dirty worktrees. Unsupported cases must fail conservatively. **Before release**, validate it on several real public Git histories, not just synthetic test repositories.
 
-Read-only inspection of local Git stashes. Flag uncertain cases for manual review. No automatic `drop`, `clear`, `apply`, or branch operations.
+## Later candidate: \`stash-audit\`
 
-## Research only: `denver`
+Read-only inspection of local Git stashes. Flag uncertain cases for manual review. No automatic \`drop\`, \`clear\`, \`apply\`, or branch operations.
+
+## Research only: \`denver\`
 
 Investigate whether public GitHub issue and commit metadata can reliably suggest otherwise unlinked fixes. Validate examples before committing to an implementation. A candidate match must never be presented as a verified fix without evidence.
 

@@ -1,4 +1,4 @@
-"""Smoke tests for the Git Phew command-line entry point."""
+"""Smoke tests for the Git Phew CLI."""
 
 import io
 import unittest
@@ -13,7 +13,7 @@ class CLITests(unittest.TestCase):
         with redirect_stdout(output):
             self.assertEqual(main([]), 0)
         self.assertIn("git phew", output.getvalue())
-        self.assertIn("not available yet", output.getvalue())
+        self.assertIn("find-deleted", output.getvalue())
 
     def test_version_flag(self) -> None:
         output = io.StringIO()
@@ -25,9 +25,9 @@ class CLITests(unittest.TestCase):
     def test_unknown_command_fails_closed(self) -> None:
         errors = io.StringIO()
         with redirect_stderr(errors), self.assertRaises(SystemExit) as exit:
-            main(["find-deleted", "example"])
+            main(["not-a-command"])
         self.assertEqual(exit.exception.code, 2)
-        self.assertIn("unrecognized arguments", errors.getvalue())
+        self.assertIn("invalid choice", errors.getvalue())
 
 
 if __name__ == "__main__":
