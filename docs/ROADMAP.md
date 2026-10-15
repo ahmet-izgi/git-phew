@@ -1,10 +1,12 @@
 # Roadmap (proposals, not commitments)
 
-Git Phew will grow only when a narrowly scoped utility demonstrates a real benefit. The repository is currently a CLI foundation, not a collection of working utilities.
+Git Phew will grow only when a narrowly scoped utility demonstrates a real benefit. No stable utility release has been published.
 
-## First: `find-deleted`
+## First: `find-deleted` — experimental
 
-Start with **Python functions only**. Search reachable local Git history and show a candidate's source, file path, and commit reference without modifying the repository. Handle duplicate names, renamed files, and missing results conservatively. Verify behavior against disposable repositories with controlled commits before making product claims.
+Initial support is intentionally **Python functions only**. The command scans local commits reachable from HEAD and attempts to prove a function was removed from a specific file, showing its historical source and commit references. It never changes the working tree or refs.
+
+Correctness tests must cover removals, signature edits that retain a function, renames, duplicate names, syntax errors, and dirty worktrees. Unsupported cases must fail conservatively. **Before release**, validate it on several real public Git histories, not just synthetic test repositories.
 
 ## Later candidate: `stash-audit`
 

@@ -4,7 +4,7 @@ Git Phew is a public, MIT-licensed collection of small Git helpers. Optimize for
 
 ## Current scope
 
-The current CLI is only a foundation. No utility command is implemented. The first planned tool is a **read-only** `find-deleted` search for Python functions in Git history; `stash-audit` is a later candidate. `denver` is research only.
+The first experimental command is `find-deleted`, which reads **local committed Git history only** to find verifiable removal of Python function definitions from particular files. It does not restore files and is not yet released. `stash-audit` is a later candidate; `denver` is research only.
 
 ## Engineering rules
 
